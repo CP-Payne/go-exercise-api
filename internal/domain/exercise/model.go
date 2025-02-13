@@ -5,13 +5,13 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/CP-Payne/exercise/internal/domain/common/commonerrors"
 	"github.com/google/uuid"
 )
 
 // Errors
 var (
 	ErrInvalidExerciseName = errors.New("an exercise must have a name")
-	ErrInvalidUpdateDate   = errors.New("date cannot be in the past")
 )
 
 // Aggregates
@@ -109,7 +109,7 @@ func (e *Exercise) GetUpdatedAt() time.Time {
 func (e *Exercise) SetUpdatedAt(t time.Time) error {
 
 	if t.Before(time.Now()) {
-		return errors.New("invalid date")
+		return commonerrors.ErrInvalidUpdatedAt
 	}
 	e.updatedAt = t
 	return nil
