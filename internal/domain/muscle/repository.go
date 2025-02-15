@@ -1,10 +1,14 @@
 package muscle
 
-import "github.com/google/uuid"
+import (
+	"context"
+
+	"github.com/google/uuid"
+)
 
 type MuscleRepository interface {
-	Add(muscle Muscle) error
-	GetById(id uuid.UUID) (Muscle, error)
-	GetAll() ([]Muscle, error)
-	Delete(id uuid.UUID) error
+	Add(ctx context.Context, muscle *Muscle) error
+	GetById(ctx context.Context, id uuid.UUID) (*Muscle, error)
+	GetAll(ctx context.Context, userId uuid.UUID) ([]*Muscle, error)
+	Delete(ctx context.Context, id uuid.UUID) error
 }

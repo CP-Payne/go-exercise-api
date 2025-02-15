@@ -30,6 +30,10 @@ func (m *Muscle) GetId() uuid.UUID {
 	return m.id
 }
 
+func (m *Muscle) SetId(id uuid.UUID) {
+	m.id = id
+}
+
 func (m *Muscle) GetName() string {
 	return m.name
 }

@@ -8,12 +8,40 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/CP-Payne/exercise/internal/infrastructure/persistence"
+	"github.com/go-chi/chi/v5"
+	"go.uber.org/zap"
 )
 
-func (app *app) run(mux http.Handler) error {
+func NewApp(cfg *config) *app {
+
+	logger := zap.Must(zap.NewProduction()).Sugar()
+	defer logger.Sync()
+
+	db, err := persistence.NewDB(cfg.db.addr, cfg.db.maxOpenConns, cfg.db.maxIdleConns, cfg.db.maxIdleTime)
+	if err != nil {
+		logger.Fatal(err)
+	}
+
+	defer db.Close()
+	logger.Info("database connection pool established")
+
+	// Setting up routes
+	router := chi.NewRouter()
+
+	return &app{
+		config: cfg,
+		logger: logger,
+		Router: router,
+	}
+
+}
+
+func (app *app) run() error {
 	srv := &http.Server{
 		Addr:         app.config.addr,
-		Handler:      mux,
+		Handler:      app.Router,
 		WriteTimeout: time.Second * 30,
 		ReadTimeout:  time.Second * 10,
 		IdleTimeout:  time.Minute,
