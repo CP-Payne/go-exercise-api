@@ -1,4 +1,4 @@
-package api
+package main
 
 import (
 	"context"
@@ -9,7 +9,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/CP-Payne/exercise/internal/application"
+	"github.com/CP-Payne/exercise/internal/domain"
 	"github.com/CP-Payne/exercise/internal/infrastructure/persistence"
+	"github.com/CP-Payne/exercise/internal/interfaces/repositories"
+	"github.com/CP-Payne/exercise/internal/interfaces/services"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 )
@@ -29,6 +33,12 @@ func NewApp(cfg *config) *app {
 
 	// Setting up routes
 	router := chi.NewRouter()
+
+	repos := repositories.NewRepositories(db)
+	domainServices := domain.NewDomainServices(repos)
+	applicationUseCases := application.NewApplicationUseCases(*domainServices)
+	applicationHandlers := services.NewHandlers(*applicationUseCases, logger)
+	applicationHandlers.RegisterRoutes(router)
 
 	return &app{
 		config: cfg,
