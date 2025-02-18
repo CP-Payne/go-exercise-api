@@ -28,7 +28,7 @@ func NewApp(cfg *config) *app {
 		logger.Fatal(err)
 	}
 
-	defer db.Close()
+	// defer db.Close()
 	logger.Info("database connection pool established")
 
 	// Setting up routes
@@ -44,6 +44,7 @@ func NewApp(cfg *config) *app {
 		config: cfg,
 		logger: logger,
 		Router: router,
+		DB:     db,
 	}
 
 }
@@ -84,6 +85,7 @@ func (app *app) run() error {
 	if err != nil {
 		return err
 	}
+	defer app.DB.Close()
 
 	app.logger.Infow("server has stopped", "addr", app.config.addr, "env", app.config.env)
 

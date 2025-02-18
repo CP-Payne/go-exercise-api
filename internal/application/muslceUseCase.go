@@ -8,7 +8,7 @@ import (
 )
 
 type MuscleUseCase interface {
-	AddMuscle(context.Context, uuid.UUID, *muscle.Muscle) error
+	CreateMuscle(context.Context, uuid.UUID, *muscle.Muscle) error
 	ListMusclesForUser(context.Context, uuid.UUID) (*muscle.Muscle, error)
 }
 
@@ -22,7 +22,11 @@ func NewMuscleUseCase(muscleService muscle.MuscleService) *muscleUseCase {
 	}
 }
 
-func (us *muscleUseCase) AddMuscle(ctx context.Context, userID uuid.UUID, muscle *muscle.Muscle) error {
+func (us *muscleUseCase) CreateMuscle(ctx context.Context, userID uuid.UUID, muscle *muscle.Muscle) error {
+	err := us.muscleService.AddMuscle(ctx, userID, muscle)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 

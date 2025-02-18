@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 )
@@ -15,6 +17,7 @@ type app struct {
 	config *config
 	logger *zap.SugaredLogger
 	Router *chi.Mux
+	DB     *sql.DB
 }
 
 type dbConfig struct {

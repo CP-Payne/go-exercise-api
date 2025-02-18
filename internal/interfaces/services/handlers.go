@@ -8,11 +8,13 @@ import (
 
 type Handlers struct {
 	muscle *MuscleHandler
+	// More handlers to be added
 }
 
 func NewHandlers(useCases application.UseCases, logger *zap.SugaredLogger) *Handlers {
+	responseHelper := NewResponseHelper(logger)
 	return &Handlers{
-		muscle: NewMuscleHandler(useCases.MuscleUseCase(), logger),
+		muscle: NewMuscleHandler(useCases.MuscleUseCase(), logger, responseHelper),
 	}
 }
 

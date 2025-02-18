@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/CP-Payne/exercise/internal/domain/muscle"
@@ -10,7 +11,7 @@ import (
 )
 
 var (
-	QueryTimeoutDuration = time.Second * 5
+	ErrDuplicateMuscleName = errors.New("a muscle with that name already exists")
 )
 
 type TargetMuscleRepository struct {
@@ -45,7 +46,12 @@ func (r *TargetMuscleRepository) Add(ctx context.Context, userID uuid.UUID, musc
 		time.Now(),
 	)
 	if err != nil {
-		return err
+		switch {
+		case err.Error() == `pq: duplicate key value violates unique constraint "target_muscles_muscle_name_key"`:
+			return ErrDuplicateMuscleName
+		default:
+			return err
+		}
 	}
 	return nil
 }

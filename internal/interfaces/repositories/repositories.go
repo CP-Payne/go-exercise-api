@@ -3,9 +3,14 @@ package repositories
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	"github.com/CP-Payne/exercise/internal/domain/muscle"
 	_ "github.com/lib/pq"
+)
+
+var (
+	QueryTimeoutDuration = time.Second * 5
 )
 
 type Repositories struct {
