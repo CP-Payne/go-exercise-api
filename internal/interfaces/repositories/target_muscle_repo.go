@@ -22,13 +22,13 @@ func NewTargetMuscleRepository(db *sql.DB) *TargetMuscleRepository {
 }
 
 type PostgresMuscle struct {
-	Id        uuid.UUID
+	ID        uuid.UUID
 	Name      string
-	UserId    uuid.UUID
+	UserID    uuid.UUID
 	CreatedAt time.Time
 }
 
-func (r *TargetMuscleRepository) Add(ctx context.Context, userId uuid.UUID, muscle *muscle.Muscle) error {
+func (r *TargetMuscleRepository) Add(ctx context.Context, userID uuid.UUID, muscle *muscle.Muscle) error {
 	query := `
 		INSERT INTO target_muscles (id, muscle_name, user_id, created_at)
 		VALUES($1, $2, $3, $4)
@@ -39,9 +39,9 @@ func (r *TargetMuscleRepository) Add(ctx context.Context, userId uuid.UUID, musc
 
 	_, err := r.db.ExecContext(ctx,
 		query,
-		muscle.GetId(),
-		muscle.GetName(),
-		userId,
+		muscle.ID(),
+		muscle.Name(),
+		userID,
 		time.Now(),
 	)
 	if err != nil {
@@ -50,11 +50,11 @@ func (r *TargetMuscleRepository) Add(ctx context.Context, userId uuid.UUID, musc
 	return nil
 }
 
-func (r *TargetMuscleRepository) GetById(ctx context.Context, id uuid.UUID) (*muscle.Muscle, error) {
+func (r *TargetMuscleRepository) GetByID(ctx context.Context, id uuid.UUID) (*muscle.Muscle, error) {
 	return &muscle.Muscle{}, nil
 }
 
-func (r *TargetMuscleRepository) GetAll(ctx context.Context, userId uuid.UUID) ([]*muscle.Muscle, error) {
+func (r *TargetMuscleRepository) List(ctx context.Context, userID uuid.UUID) ([]*muscle.Muscle, error) {
 	query := `
 		SELECT * FROM target_muscles
 		WHERE user_id = $1
@@ -63,7 +63,7 @@ func (r *TargetMuscleRepository) GetAll(ctx context.Context, userId uuid.UUID) (
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
-	rows, err := r.db.QueryContext(ctx, query, userId)
+	rows, err := r.db.QueryContext(ctx, query, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -74,11 +74,17 @@ func (r *TargetMuscleRepository) GetAll(ctx context.Context, userId uuid.UUID) (
 
 	for rows.Next() {
 		var pm PostgresMuscle
-		err := rows.Scan(&pm.Id, &pm.Name, &pm.UserId, &pm.CreatedAt)
+		err := rows.Scan(&pm.ID, &pm.Name, &pm.UserID, &pm.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
-		muscles = append(muscles, PostgresMuscleToMuscle(pm))
+
+		m, err := PostgresMuscleToMuscle(pm)
+		if err != nil {
+			return nil, err
+		}
+
+		muscles = append(muscles, m)
 	}
 
 	return []*muscle.Muscle{}, nil
@@ -88,9 +94,11 @@ func (r *TargetMuscleRepository) Delete(ctx context.Context, id uuid.UUID) error
 	return nil
 }
 
-func PostgresMuscleToMuscle(pm PostgresMuscle) *muscle.Muscle {
-	m := muscle.Muscle{}
-	m.SetId(pm.Id)
-	m.SetName(pm.Name)
-	return &m
+func PostgresMuscleToMuscle(pm PostgresMuscle) (*muscle.Muscle, error) {
+
+	return muscle.NewMuscle(muscle.MuscleParams{
+		ID:   pm.ID,
+		Name: pm.Name,
+	})
+
 }

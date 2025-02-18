@@ -4,11 +4,12 @@ import (
 	"context"
 	"database/sql"
 
+	"github.com/CP-Payne/exercise/internal/domain/muscle"
 	_ "github.com/lib/pq"
 )
 
 type Repositories struct {
-	Muscles *TargetMuscleRepository
+	Muscles muscle.MuscleRepository
 }
 
 func NewRepositories(db *sql.DB) *Repositories {

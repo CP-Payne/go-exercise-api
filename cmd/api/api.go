@@ -36,8 +36,8 @@ func NewApp(cfg *config) *app {
 
 	repos := repositories.NewRepositories(db)
 	domainServices := domain.NewDomainServices(repos)
-	applicationUseCases := application.NewApplicationUseCases(*domainServices)
-	applicationHandlers := services.NewHandlers(*applicationUseCases, logger)
+	applicationUseCases := application.NewUseCases(*domainServices)
+	applicationHandlers := services.NewHandlers(applicationUseCases, logger)
 	applicationHandlers.RegisterRoutes(router)
 
 	return &app{

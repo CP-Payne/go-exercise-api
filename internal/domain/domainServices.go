@@ -6,7 +6,7 @@ import (
 )
 
 type DomainServices struct {
-	Muscle muscle.IMuscleService
+	Muscle muscle.MuscleService
 }
 
 func NewDomainServices(r *repositories.Repositories) *DomainServices {

@@ -6,35 +6,35 @@ import (
 	"github.com/google/uuid"
 )
 
-type IMuscleService interface {
+type MuscleService interface {
 	AddMuscle(context.Context, uuid.UUID, *Muscle) error
 	RemoveMuscle(context.Context, uuid.UUID) error
-	GetMuscles(context.Context, uuid.UUID) ([]*Muscle, error)
-	GetMuscleById(context.Context, uuid.UUID) (*Muscle, error)
+	ListMuscles(context.Context, uuid.UUID) ([]*Muscle, error)
+	GetMuscleByID(context.Context, uuid.UUID) (*Muscle, error)
 }
 
-type MuscleService struct {
-	muscleRepository MuscleRepository
+type muscleService struct {
+	repo MuscleRepository
 }
 
-func NewMuscleService(repo MuscleRepository) *MuscleService {
-	return &MuscleService{
-		muscleRepository: repo,
+func NewMuscleService(repo MuscleRepository) MuscleService {
+	return &muscleService{
+		repo: repo,
 	}
 }
 
-func (s *MuscleService) AddMuscle(ctx context.Context, userId uuid.UUID, muscle *Muscle) error {
-	return s.muscleRepository.Add(ctx, userId, muscle)
+func (s *muscleService) AddMuscle(ctx context.Context, userID uuid.UUID, muscle *Muscle) error {
+	return s.repo.Add(ctx, userID, muscle)
 }
 
-func (s *MuscleService) RemoveMuscle(ctx context.Context, id uuid.UUID) error {
-	return s.muscleRepository.Delete(ctx, id)
+func (s *muscleService) RemoveMuscle(ctx context.Context, id uuid.UUID) error {
+	return s.repo.Delete(ctx, id)
 }
 
-func (s *MuscleService) GetMuscles(ctx context.Context, userId uuid.UUID) ([]*Muscle, error) {
-	return s.muscleRepository.GetAll(ctx, userId)
+func (s *muscleService) ListMuscles(ctx context.Context, userID uuid.UUID) ([]*Muscle, error) {
+	return s.repo.List(ctx, userID)
 }
 
-func (s *MuscleService) GetMuscleById(ctx context.Context, id uuid.UUID) (*Muscle, error) {
-	return s.muscleRepository.GetById(ctx, id)
+func (s *muscleService) GetMuscleByID(ctx context.Context, id uuid.UUID) (*Muscle, error) {
+	return s.repo.GetByID(ctx, id)
 }

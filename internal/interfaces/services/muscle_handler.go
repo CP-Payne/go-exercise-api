@@ -9,11 +9,11 @@ import (
 )
 
 type MuscleHandler struct {
-	muscleUseCase application.MuscleApplication
+	muscleUseCase application.MuscleUseCase
 	logger        *zap.SugaredLogger
 }
 
-func NewMuscleHandler(muscleUseCase application.MuscleApplication, logger *zap.SugaredLogger) *MuscleHandler {
+func NewMuscleHandler(muscleUseCase application.MuscleUseCase, logger *zap.SugaredLogger) *MuscleHandler {
 	return &MuscleHandler{
 		muscleUseCase: muscleUseCase,
 		logger:        logger,

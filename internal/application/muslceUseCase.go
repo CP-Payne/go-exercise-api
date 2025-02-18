@@ -7,25 +7,25 @@ import (
 	"github.com/google/uuid"
 )
 
-type MuscleApplication interface {
-	AddTargetMuscle(context.Context, uuid.UUID, muscle.Muscle) error
-	GetTargetMusclesForUser(context.Context, uuid.UUID) (*muscle.Muscle, error)
+type MuscleUseCase interface {
+	AddMuscle(context.Context, uuid.UUID, *muscle.Muscle) error
+	ListMusclesForUser(context.Context, uuid.UUID) (*muscle.Muscle, error)
 }
 
-type MuscleUseCase struct {
-	muscleService muscle.IMuscleService
+type muscleUseCase struct {
+	muscleService muscle.MuscleService
 }
 
-func NewMuscleUseCase(muscleService muscle.IMuscleService) *MuscleUseCase {
-	return &MuscleUseCase{
+func NewMuscleUseCase(muscleService muscle.MuscleService) *muscleUseCase {
+	return &muscleUseCase{
 		muscleService: muscleService,
 	}
 }
 
-func (us *MuscleUseCase) AddTargetMuscle(ctx context.Context, userId uuid.UUID, muscle muscle.Muscle) error {
+func (us *muscleUseCase) AddMuscle(ctx context.Context, userID uuid.UUID, muscle *muscle.Muscle) error {
 	return nil
 }
 
-func (us *MuscleUseCase) GetTargetMusclesForUser(ctx context.Context, userId uuid.UUID) (*muscle.Muscle, error) {
+func (us *muscleUseCase) ListMusclesForUser(ctx context.Context, userID uuid.UUID) (*muscle.Muscle, error) {
 	return &muscle.Muscle{}, nil
 }

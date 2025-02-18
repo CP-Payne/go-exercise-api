@@ -10,9 +10,9 @@ type Handlers struct {
 	muscle *MuscleHandler
 }
 
-func NewHandlers(applicationUseCases application.ApplicationUseCases, logger *zap.SugaredLogger) *Handlers {
+func NewHandlers(useCases application.UseCases, logger *zap.SugaredLogger) *Handlers {
 	return &Handlers{
-		muscle: NewMuscleHandler(applicationUseCases.Muscle, logger),
+		muscle: NewMuscleHandler(useCases.MuscleUseCase(), logger),
 	}
 }
 
