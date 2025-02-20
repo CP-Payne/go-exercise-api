@@ -7,19 +7,23 @@ import (
 )
 
 var (
+	// ErrInvalidMuscle is returned when attempting to create a muscle without a name
 	ErrInvalidMuscle = errors.New("a muscle must have a name")
 )
 
+// MuscleParams contains the parameters needed to create a new Muscle
 type MuscleParams struct {
 	ID   uuid.UUID
 	Name string
 }
 
+// Muscle represents a muscle in the exercise system
 type Muscle struct {
 	id   uuid.UUID
 	name string
 }
 
+// NewMuscle creates a new Muscle entity with validation
 func NewMuscle(params MuscleParams) (*Muscle, error) {
 	if params.Name == "" {
 		return &Muscle{}, ErrInvalidMuscle
@@ -36,5 +40,4 @@ func NewMuscle(params MuscleParams) (*Muscle, error) {
 }
 
 func (m *Muscle) ID() uuid.UUID { return m.id }
-
-func (m *Muscle) Name() string { return m.name }
+func (m *Muscle) Name() string  { return m.name }
