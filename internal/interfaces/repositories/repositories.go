@@ -3,10 +3,17 @@ package repositories
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 
 	"github.com/CP-Payne/exercise/internal/domain/muscle"
 	_ "github.com/lib/pq"
+)
+
+// Errors used by all repository implementations
+var (
+	ErrNotFound = errors.New("resource not found")
+	ErrConflict = errors.New("resource already exists")
 )
 
 var (

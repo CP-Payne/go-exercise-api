@@ -57,5 +57,5 @@ func (rh *ResponseHelper) WriteValidationErrorResponse(w http.ResponseWriter, er
 		"errors": errors,
 	}
 
-	jsonResponse(w, http.StatusBadRequest, response)
+	rh.jsonResponse(w, http.StatusBadRequest, response)
 }

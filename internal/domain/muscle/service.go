@@ -7,10 +7,10 @@ import (
 )
 
 type MuscleService interface {
-	AddMuscle(context.Context, uuid.UUID, *Muscle) error
-	RemoveMuscle(context.Context, uuid.UUID) error
-	ListMuscles(context.Context, uuid.UUID) ([]*Muscle, error)
-	GetMuscleByID(context.Context, uuid.UUID) (*Muscle, error)
+	AddMuscle(ctx context.Context, userID uuid.UUID, muscle *Muscle) error
+	RemoveMuscle(ctx context.Context, userID, muscleID uuid.UUID) error
+	ListMuscles(ctx context.Context, userID uuid.UUID) ([]*Muscle, error)
+	GetMuscleByID(ctx context.Context, userID, muscleID uuid.UUID) (*Muscle, error)
 }
 
 type muscleService struct {
@@ -27,14 +27,14 @@ func (s *muscleService) AddMuscle(ctx context.Context, userID uuid.UUID, muscle 
 	return s.repo.Add(ctx, userID, muscle)
 }
 
-func (s *muscleService) RemoveMuscle(ctx context.Context, id uuid.UUID) error {
-	return s.repo.Delete(ctx, id)
+func (s *muscleService) RemoveMuscle(ctx context.Context, userID, muscleID uuid.UUID) error {
+	return s.repo.Delete(ctx, userID, muscleID)
 }
 
 func (s *muscleService) ListMuscles(ctx context.Context, userID uuid.UUID) ([]*Muscle, error) {
 	return s.repo.List(ctx, userID)
 }
 
-func (s *muscleService) GetMuscleByID(ctx context.Context, id uuid.UUID) (*Muscle, error) {
-	return s.repo.GetByID(ctx, id)
+func (s *muscleService) GetMuscleByID(ctx context.Context, userID, muscleID uuid.UUID) (*Muscle, error) {
+	return s.repo.GetByID(ctx, userID, muscleID)
 }

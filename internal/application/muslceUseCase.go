@@ -8,8 +8,10 @@ import (
 )
 
 type MuscleUseCase interface {
-	CreateMuscle(context.Context, uuid.UUID, *muscle.Muscle) error
-	ListMusclesForUser(context.Context, uuid.UUID) (*muscle.Muscle, error)
+	CreateMuscle(ctx context.Context, userID uuid.UUID, muscle *muscle.Muscle) error
+	ListMusclesForUser(ctx context.Context, userID uuid.UUID) ([]*muscle.Muscle, error)
+	DeleteMuscle(ctx context.Context, userID, muscleID uuid.UUID) error
+	GetMuscleByID(ctx context.Context, userID, muscleID uuid.UUID) (*muscle.Muscle, error)
 }
 
 type muscleUseCase struct {
@@ -30,6 +32,14 @@ func (us *muscleUseCase) CreateMuscle(ctx context.Context, userID uuid.UUID, mus
 	return nil
 }
 
-func (us *muscleUseCase) ListMusclesForUser(ctx context.Context, userID uuid.UUID) (*muscle.Muscle, error) {
-	return &muscle.Muscle{}, nil
+func (us *muscleUseCase) ListMusclesForUser(ctx context.Context, userID uuid.UUID) ([]*muscle.Muscle, error) {
+	return us.muscleService.ListMuscles(ctx, userID)
+}
+
+func (us *muscleUseCase) GetMuscleByID(ctx context.Context, userID, muscleID uuid.UUID) (*muscle.Muscle, error) {
+	return us.muscleService.GetMuscleByID(ctx, userID, muscleID)
+}
+
+func (us *muscleUseCase) DeleteMuscle(ctx context.Context, userID, muscleID uuid.UUID) error {
+	return us.muscleService.RemoveMuscle(ctx, userID, muscleID)
 }

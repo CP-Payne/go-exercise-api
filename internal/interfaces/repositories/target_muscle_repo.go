@@ -56,13 +56,43 @@ func (r *TargetMuscleRepository) Add(ctx context.Context, userID uuid.UUID, musc
 	return nil
 }
 
-func (r *TargetMuscleRepository) GetByID(ctx context.Context, id uuid.UUID) (*muscle.Muscle, error) {
-	return &muscle.Muscle{}, nil
+func (r *TargetMuscleRepository) GetByID(ctx context.Context, userID, muscleID uuid.UUID) (*muscle.Muscle, error) {
+	query := `
+		SELECT id, muscle_name, user_id, created_at FROM target_muscles
+		WHERE user_id = $1 AND id = $2	
+	`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	var pm PostgresMuscle
+
+	err := r.db.QueryRowContext(ctx,
+		query,
+		userID,
+		muscleID,
+	).Scan(
+		&pm.ID,
+		&pm.Name,
+		&pm.UserID,
+		&pm.CreatedAt,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrNotFound
+		default:
+			return nil, err
+		}
+	}
+
+	return PostgresMuscleToMuscle(pm)
 }
 
 func (r *TargetMuscleRepository) List(ctx context.Context, userID uuid.UUID) ([]*muscle.Muscle, error) {
 	query := `
-		SELECT * FROM target_muscles
+		SELECT id, muscle_name, user_id, created_at FROM target_muscles
 		WHERE user_id = $1
 	`
 
@@ -93,10 +123,31 @@ func (r *TargetMuscleRepository) List(ctx context.Context, userID uuid.UUID) ([]
 		muscles = append(muscles, m)
 	}
 
-	return []*muscle.Muscle{}, nil
+	return muscles, nil
 }
 
-func (r *TargetMuscleRepository) Delete(ctx context.Context, id uuid.UUID) error {
+func (r *TargetMuscleRepository) Delete(ctx context.Context, userID, muscleID uuid.UUID) error {
+	query := `
+		DELETE FROM target_muscles
+		WHERE user_id = $1 AND id = $2	
+	`
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
+	res, err := r.db.ExecContext(ctx, query, userID, muscleID)
+	if err != nil {
+		return err
+	}
+
+	rows, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rows == 0 {
+		return ErrNotFound
+	}
+
 	return nil
 }
 
