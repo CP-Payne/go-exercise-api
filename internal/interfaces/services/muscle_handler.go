@@ -35,10 +35,21 @@ func (h *MuscleHandler) RegisterRoutes(router chi.Router) {
 	})
 }
 
-type CreateMusclePayload struct {
-	ID     string `json:"id"`
+type MuscleListResponse []MuscleResponse
+
+type CreateMuscleRequest struct {
+	// ID     string `json:"id"`
 	Name   string `json:"name" validate:"required,max=30"`
 	UserID string `json:"userID"`
+}
+
+type CreateMuscleResponse struct {
+	ID string `json:"id"`
+}
+
+type MuscleResponse struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
 }
 
 var (
@@ -46,7 +57,7 @@ var (
 )
 
 func (h *MuscleHandler) CreateMuscle(w http.ResponseWriter, r *http.Request) {
-	var payload CreateMusclePayload
+	var payload CreateMuscleRequest
 	if err := h.responseHelper.readJSON(w, r, &payload); err != nil {
 		h.responseHelper.badRequestResponse(w, r, err)
 		return
@@ -76,9 +87,7 @@ func (h *MuscleHandler) CreateMuscle(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Only return ID
-	response := struct {
-		ID string `json:"id"`
-	}{
+	response := CreateMuscleResponse{
 		ID: domainMuscle.ID().String(),
 	}
 
@@ -95,20 +104,13 @@ func (h *MuscleHandler) GetMuscles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	type ResponseMuscle struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
-	}
-
-	responseBody := []ResponseMuscle{}
+	responseBody := make(MuscleListResponse, 0, len(domainMuscles))
 
 	for _, m := range domainMuscles {
-		rm := ResponseMuscle{
+		responseBody = append(responseBody, MuscleResponse{
 			ID:   m.ID().String(),
 			Name: m.Name(),
-		}
-
-		responseBody = append(responseBody, rm)
+		})
 	}
 
 	if err := h.responseHelper.jsonResponse(w, http.StatusOK, responseBody); err != nil {
@@ -136,17 +138,13 @@ func (h *MuscleHandler) GetMuscleByID(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	type ResponseMuscle struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
-	}
 
-	responseMuscle := ResponseMuscle{
+	response := MuscleResponse{
 		ID:   domainMuscle.ID().String(),
 		Name: domainMuscle.Name(),
 	}
 
-	if err := h.responseHelper.jsonResponse(w, http.StatusOK, responseMuscle); err != nil {
+	if err := h.responseHelper.jsonResponse(w, http.StatusOK, response); err != nil {
 		h.responseHelper.internalServerError(w, r, err)
 		return
 	}
