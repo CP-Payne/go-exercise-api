@@ -12,12 +12,14 @@ import (
 	"go.uber.org/zap"
 )
 
+// MuscleHandler handles HTTP requests related to muscle resources.
 type MuscleHandler struct {
 	muscleUseCase  application.MuscleUseCase
 	logger         *zap.SugaredLogger
 	responseHelper *ResponseHelper
 }
 
+// NewMuscleHandler creates a new muscle handler with the specified dependencies.
 func NewMuscleHandler(muscleUseCase application.MuscleUseCase, logger *zap.SugaredLogger, responseHelper *ResponseHelper) *MuscleHandler {
 	return &MuscleHandler{
 		muscleUseCase:  muscleUseCase,
@@ -26,6 +28,7 @@ func NewMuscleHandler(muscleUseCase application.MuscleUseCase, logger *zap.Sugar
 	}
 }
 
+// RegisterRoutes sets up all muscle-related routes on the provided router.
 func (h *MuscleHandler) RegisterRoutes(router chi.Router) {
 	router.Route("/muscles", func(r chi.Router) {
 		r.Get("/", h.GetMuscles)
@@ -35,27 +38,33 @@ func (h *MuscleHandler) RegisterRoutes(router chi.Router) {
 	})
 }
 
+// MuscleListResponse represents a collection of muscle responses
 type MuscleListResponse []MuscleResponse
 
+// CreateMuscleResponse defines the expected structure for muscle creation requests.
 type CreateMuscleRequest struct {
-	// ID     string `json:"id"`
 	Name   string `json:"name" validate:"required,max=30"`
 	UserID string `json:"userID"`
 }
 
+// CreateMuscleResponse defines teh response structure after successfull muscle creation.
 type CreateMuscleResponse struct {
 	ID string `json:"id"`
 }
 
+// MuscleResponse defines the standard response structure for muscle data.
 type MuscleResponse struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
 }
 
 var (
+	// tempUserID is a placeholder user ID for testing
+	// TODO: Replace with JWT authentication to extract user ID from context.
 	tempUserID = "762c3349-0230-4094-932b-5d0685fafd4e" // only used for testing, will retrieve it from jwt in context later on
 )
 
+// CreateMuscle handles POST requests to create a new muscle.
 func (h *MuscleHandler) CreateMuscle(w http.ResponseWriter, r *http.Request) {
 	var payload CreateMuscleRequest
 	if err := h.responseHelper.readJSON(w, r, &payload); err != nil {
@@ -97,6 +106,7 @@ func (h *MuscleHandler) CreateMuscle(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetMuscles handles GET requests to retrieve all muscles for the current user.
 func (h *MuscleHandler) GetMuscles(w http.ResponseWriter, r *http.Request) {
 	domainMuscles, err := h.muscleUseCase.ListMusclesForUser(r.Context(), uuid.MustParse(tempUserID))
 	if err != nil {
@@ -119,6 +129,7 @@ func (h *MuscleHandler) GetMuscles(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetMuscleByID handles GET requests to retrieve a muscle by ID for the current user.
 func (h *MuscleHandler) GetMuscleByID(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "muscleID")
 	id, err := uuid.Parse(idParam)
@@ -151,6 +162,7 @@ func (h *MuscleHandler) GetMuscleByID(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// DeleteMuscle handles DELETE requests to delete a muscle for the current user by ID.
 func (h *MuscleHandler) DeleteMuscle(w http.ResponseWriter, r *http.Request) {
 	idParam := chi.URLParam(r, "muscleID")
 	id, err := uuid.Parse(idParam)

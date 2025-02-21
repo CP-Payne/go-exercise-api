@@ -13,7 +13,7 @@ type ValidationError struct {
 	Message string `json:"message"`
 }
 
-// Validation messages for different validation tags
+// validationMessages maps validation tags to user-friendly error messages.
 var validationMessages = map[string]string{
 	"required": "This field is required.",
 	"min":      "Must be at least %s characters long.",
@@ -22,7 +22,7 @@ var validationMessages = map[string]string{
 	"uuid":     "Must be a valid UUID.",
 }
 
-// ValidateStruct validates a struct and returns a list of detailed error messages
+// ValidateStruct validates a struct and returns a list of detailed validation error messages
 func (rh *ResponseHelper) ValidateStruct(data interface{}) []ValidationError {
 	validate := validator.New()
 	err := validate.Struct(data)
