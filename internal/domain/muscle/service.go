@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// MuscleService defines the business operations available for muscles
 type MuscleService interface {
 	AddMuscle(ctx context.Context, userID uuid.UUID, muscle *Muscle) error
 	RemoveMuscle(ctx context.Context, userID, muscleID uuid.UUID) error
@@ -17,6 +18,7 @@ type muscleService struct {
 	repo MuscleRepository
 }
 
+// NewMuscleService create a new service with the provided repository
 func NewMuscleService(repo MuscleRepository) MuscleService {
 	return &muscleService{
 		repo: repo,
