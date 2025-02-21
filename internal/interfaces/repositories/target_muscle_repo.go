@@ -11,17 +11,21 @@ import (
 )
 
 var (
+	// ErrDuplicateMuscleName is returned when attempting to create a muscle with a name that already exists
 	ErrDuplicateMuscleName = errors.New("a muscle with that name already exists")
 )
 
+// TargetMuscleRepository implements muscle.MuscleRepository interface using PostgreSQL
 type TargetMuscleRepository struct {
 	db *sql.DB
 }
 
+// NewTargetMuscleRepository creates a new repository with the provided database connection
 func NewTargetMuscleRepository(db *sql.DB) *TargetMuscleRepository {
 	return &TargetMuscleRepository{db: db}
 }
 
+// PostgresMuscle represents the database structure for storing muscles
 type PostgresMuscle struct {
 	ID        uuid.UUID
 	Name      string
@@ -29,6 +33,8 @@ type PostgresMuscle struct {
 	CreatedAt time.Time
 }
 
+// Add persists a new muscle to the database for a specific user
+// Returns ErrDuplicateMuscleName if a muscle with the same name already exists for that user
 func (r *TargetMuscleRepository) Add(ctx context.Context, userID uuid.UUID, muscle *muscle.Muscle) error {
 	query := `
 		INSERT INTO target_muscles (id, muscle_name, user_id, created_at)
@@ -56,6 +62,8 @@ func (r *TargetMuscleRepository) Add(ctx context.Context, userID uuid.UUID, musc
 	return nil
 }
 
+// GetByID retrieves a muscle by its ID for a specific user
+// Returns ErrNotFound if the muscle doesn't exist for that user
 func (r *TargetMuscleRepository) GetByID(ctx context.Context, userID, muscleID uuid.UUID) (*muscle.Muscle, error) {
 	query := `
 		SELECT id, muscle_name, user_id, created_at FROM target_muscles
@@ -90,6 +98,7 @@ func (r *TargetMuscleRepository) GetByID(ctx context.Context, userID, muscleID u
 	return PostgresMuscleToMuscle(pm)
 }
 
+// List retrieves all muscles belonging to a specific user
 func (r *TargetMuscleRepository) List(ctx context.Context, userID uuid.UUID) ([]*muscle.Muscle, error) {
 	query := `
 		SELECT id, muscle_name, user_id, created_at FROM target_muscles
@@ -126,6 +135,8 @@ func (r *TargetMuscleRepository) List(ctx context.Context, userID uuid.UUID) ([]
 	return muscles, nil
 }
 
+// Delete removes a muscle by its ID for a specific user
+// Returns ErrNotFound if the muscle doesn't exist
 func (r *TargetMuscleRepository) Delete(ctx context.Context, userID, muscleID uuid.UUID) error {
 	query := `
 		DELETE FROM target_muscles
@@ -151,8 +162,8 @@ func (r *TargetMuscleRepository) Delete(ctx context.Context, userID, muscleID uu
 	return nil
 }
 
+// PostgresMuscleToMuscle converts a database model to a domain model
 func PostgresMuscleToMuscle(pm PostgresMuscle) (*muscle.Muscle, error) {
-
 	return muscle.NewMuscle(muscle.MuscleParams{
 		ID:   pm.ID,
 		Name: pm.Name,
